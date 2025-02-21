@@ -1,0 +1,120 @@
+library(insuranceData)
+library(dplyr)
+library(skimr)
+library(visdat)
+library(ggplot2)
+#Activar el data frame de dataCar
+data(dataCar)
+#Para conocer la estructura del data frame
+str(dataCar)
+#Par tener una vista previa de las medidas basicas estadisticas (media, varaianza, etc.)
+summary(dataCar)
+#Otra función oara obetener datos estadisticos
+skim(dataCar)
+#Para ver el encabezado de mi base
+head(dataCar)
+#Para ver los ultimos valores
+tail(dataCar)
+#Para conocer la dimesión del conjunto de datos
+dim(dataCar)
+#Conocer la definición de las variables (opción a str)
+glimpse(dataCar)
+
+#Para conocer el nombre de nuestras columnas
+names(dataCar)
+colnames(dataCar)
+#Para saber si  hay datos faltantes
+any(is.na(dataCar))
+#Nos grafica si tenemos datos faltantes
+vis_dat(dataCar)
+vis_miss(dataCar)
+#Para saber eñ numero de reclamaciones
+sum(dataCar$numclaims >=1)
+sum(dataCar$numclaims >=2)
+4624/67856
+
+#longitud de mi base
+nrow(dataCar)
+length(dataCar)
+
+#TOP5
+top_5_numclaims <- dataCar %>%
+  group_by(veh_body) %>%
+  summarise(totclaims=sum(numclaims)) %>%
+  arrange(desc(totclaims)) 
+
+
+    print(top_5_numclaims)
+    
+#Mostar el tipo de vehiculo on el mayor numero de reclamaciones
+    mayor_claim <- head(top_5_numclaims, 5)
+    mayor_claim
+    
+
+    #Si graficamos con ggplot2
+    
+    ggplot(top_5_numclaims, aes(x =reorder( veh_body , -totclaims), y= totclaims))+
+      geom_bar(stat = "identity" , fill= "blue" , color= "black")+
+      labs(title = "Numero de Reclamaciones por Tipo de Vehiculo",
+           x="Tipo de vehiculo",
+           y="Total de reclamaciones")+
+      theme_minimal()+
+      theme(axis.text.x = element_text(angle= 45, hjust = 1))
+    
+        
+#TOP 10
+top_10_claimcost <- dataCar %>%
+  group_by(veh_body) %>%
+  summarise(totcost=sum(claimcst0)) %>%
+  arrange(desc(totcost)) 
+
+print(top_10_claimcost)
+
+
+
+#Mostar el tipo de vehiculo on el mayor numero de reclamaciones
+mayor_cost <- head(top_10_claimcost, 10)
+mayor_cost
+
+
+#Si graficamos con ggplot2
+
+ggplot(top_10_claimcost, aes(x =reorder( veh_body , -totcost), y= totcost))+
+  geom_bar(stat = "identity" , fill= "blue" , color= "black")+
+  labs(title = "Total de costo por Tipo de Vehiculo",
+       x="Tipo de vehiculo",
+       y="Costo Total")+
+  theme_minimal()+
+  theme(axis.text.x = element_text(angle= 45, hjust = 1))
+
+
+
+######Analisis por genero
+
+#Contar el numero de reclmaciones por genero
+
+claims_gen <- dataCar %>%
+  group_by (gender) %>%
+  summarise( numclaims=n()) %>%
+  arrange(desc(numclaims))
+
+#Mostrar el generpo con el mayor numero de reclamaciones
+claims_gen
+
+#Filtrar por tipo de vehiculo y costo de los reclamos
+claims_gen_veh <- dataCar %>%
+  group_by (gender, veh_body) %>%
+  summarise( totclaims=n()) %>%
+  arrange(desc(totclaims))
+
+#Mostrar el generpo con el mayor numero de costos reclamaciones
+claims_gen_veh
+
+#Crear un grafico de barras
+ggplot(claims_gen_veh, aes(x= reorder(veh_body, -totclaims), y= totclaims, fill= gender))+
+  geom_bar(stat = "identity" , position = "dodge")+
+  labs(title = "Tipos de Vehiculos Ma Reclamados Por Genero",
+       x= "Tipo de Vehiculo",
+       y="Numero de Reclamacione")+
+  theme_minimal()+
+  theme(axis.title.x = element_text(angle = 45, hjust = 1))
