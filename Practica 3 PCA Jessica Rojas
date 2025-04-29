@@ -1,0 +1,275 @@
+#Ejercicio de Covid
+if (!require("pacman")) install.packages("pacman")
+if (!require("readxl")) install.packages("readxl")
+if (!require("haven")) install.packages("haven")
+if (!require("dplyr")) install.packages("dplyr")
+if (!require("factoextra")) install.packages("factoextra")
+if (!require("FactoMineR")) install.packages("FactoMineR")
+if (!require("readr")) install.packages("readr")
+if (!require("rgl")) install.packages("rgl")
+if (!require("fpc")) install.packages("fpc")
+if (!require("psych")) install.packages("psych")
+
+library(pacman)
+p_load(haven, dplyr, factoextra, FactoMiner, readr, rgl, fpc)
+library(haven)
+library(dplyr)
+library(factoextra)
+library(FactoMineR)
+library(readr)
+library(rgl)
+library(fpc)
+library(readxl)
+
+#read.csv2
+
+
+Covid <- read_excel(file.choose())
+View(Covid)
+
+colnames(Covid)
+
+if (!require("psych")) install.packages("psych")
+library(psych)
+
+# Seleccionar columnas del año 2000 y 2001
+names_2000 <- grep("2000", colnames(Covid), value = TRUE)
+names_2001 <- grep("2001", colnames(Covid), value = TRUE)
+
+# Crear datasets por año
+data1_2000 <- Covid %>% select(all_of(names_2000))
+data1_2001 <- Covid %>% select(all_of(names_2001))
+
+# Eliminar filas con NA
+data1_2000 <- na.omit(data1_2000)
+data1_2001 <- na.omit(data1_2001)
+
+# Normalizar los datos (muy importante antes de un PCA)
+data1_2000 <- scale(data1_2000)
+data1_2001 <- scale(data1_2001)
+
+View(data1_2000)
+View(data1_2001)
+
+#--------------------------------------------------
+# ANÁLISIS PARA EL AÑO 2000
+#--------------------------------------------------
+
+# Diagnóstico de adecuación del PCA (KMO)
+cat("KMO para año 2000:\n")
+print(KMO(data1_2000))
+
+# Realizar el PCA
+pca_2000 <- princomp(data1_2000, cor = TRUE)
+
+# Diagnóstico general
+summary(pca_2000)
+
+# Gráfico de eigenvalores
+fviz_eig(pca_2000, choice = "eigenvalue", main = "Eigenvalores - Año 2000")
+
+# Gráfico de observaciones (individuos)
+fviz_pca_ind(pca_2000, col.ind = "cos2", gradient.cols = c("red", "yellow", "green"), repel = FALSE)
+
+# Gráfico de variables
+fviz_pca_var(pca_2000, col.var = "contrib", gradient.cols = c("red", "yellow", "green"), repel = FALSE)
+
+# Biplot
+fviz_pca_biplot(pca_2000, col.var = "red", col.ind = "black", title = "Biplot - Año 2000")
+
+# Mostrar cargas factoriales
+cat("Cargas factoriales Año 2000:\n")
+print(pca_2000$loadings)
+
+# Determinante de la matriz de correlaciones
+cat("Determinante correlación 2000:", det(cor(data1_2000)), "\n")
+
+#--------------------------------------------------
+# Rotación Varimax para facilitar interpretación
+#--------------------------------------------------
+
+pca2_2000 <- psych::principal(data1_2000, nfactors = 2, residuals = FALSE, rotate = "varimax",
+                              scores = TRUE, oblique.scores = FALSE, method = "regression",
+                              use = "pairwise", cor = "cor", weight = NULL)
+
+print(pca2_2000)
+
+# Pesos para construir las puntuaciones
+cat("Pesos para componente 1 (2000):\n")
+print(pca2_2000$weights[,1])
+
+cat("Pesos para componente 2 (2000):\n")
+print(pca2_2000$weights[,2])
+
+# Nuevas variables (componentes ortogonales)
+View(pca2_2000$scores)
+
+# Ejemplo: analizar un sujeto en el cuadrante 1 (mayores puntuaciones)
+cat("Ejemplo sujeto 5 (año 2000):\n")
+print(data1_2000[5,])
+
+#--------------------------------------------------
+# ANÁLISIS PARA EL AÑO 2001
+#--------------------------------------------------
+
+cat("KMO para año 2001:\n")
+print(KMO(data1_2001))
+
+# Realizar el PCA
+pca_2001 <- princomp(data1_2001, cor = TRUE)
+
+# Diagnóstico general
+summary(pca_2001)
+
+# Gráfico de eigenvalores
+fviz_eig(pca_2001, choice = "eigenvalue", main = "Eigenvalores - Año 2001")
+
+# Gráfico de observaciones
+fviz_pca_ind(pca_2001, col.ind = "cos2", gradient.cols = c("red", "yellow", "green"), repel = FALSE)
+
+# Gráfico de variables
+fviz_pca_var(pca_2001, col.var = "contrib", gradient.cols = c("red", "yellow", "green"), repel = FALSE)
+
+# Biplot
+fviz_pca_biplot(pca_2001, col.var = "blue", col.ind = "black", title = "Biplot - Año 2001")
+
+# Mostrar cargas factoriales
+cat("Cargas factoriales Año 2001:\n")
+print(pca_2001$loadings)
+
+# Determinante de la matriz de correlaciones
+cat("Determinante correlación 2001:", det(cor(data1_2001)), "\n")
+
+#--------------------------------------------------
+# Rotación Varimax para facilitar interpretación
+#--------------------------------------------------
+
+pca2_2001 <- psych::principal(data1_2001, nfactors = 2, residuals = FALSE, rotate = "varimax",
+                              scores = TRUE, oblique.scores = FALSE, method = "regression",
+                              use = "pairwise", cor = "cor", weight = NULL)
+
+print(pca2_2001)
+
+# Pesos para construir las puntuaciones
+cat("Pesos para componente 1 (2001):\n")
+print(pca2_2001$weights[,1])
+
+cat("Pesos para componente 2 (2001):\n")
+print(pca2_2001$weights[,2])
+
+# Nuevas variables (componentes ortogonales)
+View(pca2_2001$scores)
+
+# --- Análisis de Componentes Principales (PCA) ---
+if (!require("pacman")) install.packages("pacman")
+if (!require("readxl")) install.packages("readxl")
+if (!require("haven")) install.packages("haven")
+if (!require("dplyr")) install.packages("dplyr")
+if (!require("factoextra")) install.packages("factoextra")
+if (!require("FactoMineR")) install.packages("FactoMineR")
+if (!require("readr")) install.packages("readr")
+if (!require("rgl")) install.packages("rgl")
+if (!require("fpc")) install.packages("fpc")
+if (!require("psych")) install.packages("psych")
+
+library(pacman)
+p_load(haven, dplyr, factoextra, FactoMineR, readr, rgl, fpc, psych, corrplot)
+library(haven)
+library(dplyr)
+library(factoextra)
+library(FactoMineR)
+library(readr)
+library(rgl)
+library(fpc)
+
+# Cargar datos
+datos_pca <- read.csv2(file.choose())
+View(datos_pca)
+
+# Eliminar columna 'y'
+datos_pca <- datos_pca %>% select(-y)
+
+# Normalizar variables
+datos_normalizados <- scale(datos_pca[,-1])
+View(datos_normalizados)
+
+# ---- Ejecución de PCA ----
+
+# Evaluación de la adecuación del muestreo
+psych::KMO(datos_normalizados)
+
+# Realizar el análisis de componentes principales
+modelo_pca <- princomp(datos_normalizados)
+
+# Resumen estadístico
+summary(modelo_pca)
+
+# Gráfico de porcentaje de varianza explicada
+fviz_eig(modelo_pca, choice = "variance",
+         main = "Porcentaje de Varianza Explicada",
+         xlab = "Componentes Principales",
+         ylab = "Porcentaje (%)")
+
+# Gráfico de valores propios (eigenvalues)
+fviz_eig(modelo_pca, choice = "eigenvalue",
+         main = "Valores Propios de Componentes",
+         xlab = "Componentes Principales",
+         ylab = "Valor Propio")
+
+# Representación gráfica de individuos (observaciones)
+fviz_pca_ind(modelo_pca,
+             col.ind = "cos2",
+             gradient.cols = c("red", "yellow", "green"),
+             repel = FALSE,
+             title = "Representación de Individuos (Observaciones)")
+
+# Gráfico de variables por su contribución
+fviz_pca_var(modelo_pca,
+             col.var = "contrib",
+             gradient.cols = c("red", "yellow", "green"),
+             repel = FALSE,
+             title = "Contribución de Variables a Componentes")
+
+# Biplot combinado
+fviz_pca_biplot(modelo_pca,
+                col.var = "red",
+                col.ind = "black",
+                title = "Biplot de Variables y Observaciones")
+
+# Matriz de cargas factoriales
+modelo_pca$loadings
+
+# Correlación entre variables normalizadas
+x11()
+psych::cor.plot(datos_normalizados, main = "Mapa de Correlaciones entre Variables")
+
+# Determinante de la matriz de correlaciones
+det(cor(datos_normalizados))
+
+# ---- Rotación de componentes ----
+
+modelo_rotado <- psych::principal(datos_normalizados, nfactors = 14, residuals = FALSE, rotate = "varimax",
+                                  scores = TRUE, oblique.scores = FALSE, method = "regression",
+                                  use = "pairwise", cor = "cor", weight = NULL)
+
+# Resultados de la rotación de componentes
+modelo_rotado
+
+# Pesos (coeficientes) de cada componente
+modelo_rotado$weights[,1]
+modelo_rotado$weights[,2]
+modelo_rotado$weights[,3]
+modelo_rotado$weights[,4]
+modelo_rotado$weights[,5]
+modelo_rotado$weights[,6]
+modelo_rotado$weights[,7]
+modelo_rotado$weights[,8]
+modelo_rotado$weights[,9]
+modelo_rotado$weights[,10]
+modelo_rotado$weights[,11]
+modelo_rotado$weights[,12]
+modelo_rotado$weights[,13]
+modelo_rotado$weights[,14]
+
+# Nuevas puntuaciones ortogonales (variables transformadas)
+modelo_rotado$scores
