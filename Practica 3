@@ -1,0 +1,161 @@
+# Ejercicio de PCA
+library(pacman)
+p_load(haven, dplyr, factoextra, FactoMineR, readr, rgl, fpc, psych, corrplot)
+library(haven)
+library(dplyr)
+library(factoextra)
+library(FactoMineR)
+library(readr)
+library(rgl)
+library(fpc)
+
+PCA <- read.csv2(file.choose())
+View(PCA)
+
+# Eliminamos columna Y
+PCA <- PCA %>% select(-y)
+
+# Normalizar datos
+data1 <- scale(PCA[,-1])
+
+# Datos normalizados
+View(data1)
+
+# Realizar PCA
+
+# Diagnóstico para el PCA
+
+# Calcular factor de adecuación muestral de Kaiser-Meyer-Olkin
+psych::KMO(data1)
+
+# Análisis de Componentes
+pca1 <- princomp(data1)
+
+# Diagnóstico
+summary(pca1)
+
+# Revisar varianza y eigenvalores
+fviz_eig(pca1, choice = "variance")
+fviz_eig(pca1, choice = "eigenvalue")
+
+# Análisis gráfico
+
+# Gráfico de las puntuaciones factoriales y su representación 
+fviz_pca_ind(pca1,
+             col.ind = "cos2",
+             gradient.cols = c("red", "yellow", "green"),
+             repel = FALSE)
+
+# Gráfico de cargas
+fviz_pca_var(pca1,
+             col.var = "contrib",
+             gradient.cols = c("red", "yellow", "green"),
+             repel = FALSE)
+
+# Biplot de PCA
+fviz_pca_biplot(pca1,
+                col.var = "red",
+                col.ind = "black")
+pca1$loadings
+
+# Correlaciones
+x11()
+psych::cor.plot(data1)
+
+# Determinante de la matriz de correlación
+det(cor(data1))
+
+# Rotación Varimax
+pca3 <- psych::principal(data1, nfactors = 14, residuals = FALSE, rotate = "varimax",
+                         scores = TRUE, oblique.scores = FALSE, method = "regression",
+                         use = "pairwise", cor = "cor", weight = NULL)
+pca3
+
+# Matriz de coeficientes para las puntuaciones de los componentes
+pca3$weights[,1]
+pca3$weights[,2]
+pca3$weights[,3]
+pca3$weights[,4]
+pca3$weights[,5]
+pca3$weights[,6]
+pca3$weights[,7]
+pca3$weights[,8]
+pca3$weights[,9]
+pca3$weights[,10]
+pca3$weights[,11]
+pca3$weights[,12]
+pca3$weights[,13]
+pca3$weights[,14]
+
+########################################################-----##############################################
+########################################################-----##############################################
+
+# Ejercicio de PCA y Población USA
+Pobla1 <- read_excel(file.choose())
+Pobla2 <- read_excel(file.choose())
+View(Pobla1)
+View(Pobla2)
+
+# Normalizar datos
+data1 <- scale(Pobla1[,-1])
+data2 <- scale(Pobla2[,-1])
+
+# Datos normalizados
+View(data1)
+View(data2)
+
+# Realizar PCA
+
+# Diagnóstico para el PCA
+# Calcular factor de adecuación muestral de Kaiser-Meyer-Olkin
+psych::KMO(data1)
+psych::KMO(data2)
+
+# Análisis de Componentes
+pca1 <- princomp(data1)
+pca2 <- princomp(data2)
+
+# Diagnóstico
+summary(pca1)
+summary(pca2)
+
+# Revisar varianza y eigenvalores
+fviz_eig(pca1, choice = "variance")
+fviz_eig(pca2, choice = "variance")
+fviz_eig(pca1, choice = "eigenvalue")
+fviz_eig(pca2, choice = "eigenvalue")
+
+# Análisis gráfico
+
+# Gráfico de las puntuaciones factoriales y su representación 
+fviz_pca_ind(pca1,
+             col.ind = "cos2",
+             gradient.cols = c("red", "yellow", "green"),
+             repel = FALSE)
+
+fviz_pca_ind(pca2,
+             col.ind = "cos2",
+             gradient.cols = c("red", "yellow", "green"),
+             repel = FALSE)
+
+# Gráfico de cargas
+fviz_pca_var(pca1,
+             col.var = "contrib",
+             gradient.cols = c("red", "yellow", "green"),
+             repel = FALSE)
+
+fviz_pca_var(pca2,
+             col.var = "contrib",
+             gradient.cols = c("red", "yellow", "green"),
+             repel = FALSE)
+
+# Biplot de PCA
+fviz_pca_biplot(pca1,
+                col.var = "red",
+                col.ind = "black")
+pca1$loadings
+
+fviz_pca_biplot(pca2,
+                col.var = "red",
+                col.ind = "black")
+pca2$loadings
